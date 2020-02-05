@@ -1,0 +1,184 @@
+---
+title: "Biomath HW1"
+author: "Maxwell Greene"
+date: "January 29, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Problem #1
+$$
+\begin{aligned}
+N_{t+1}&= \rho N_t \\
+N_{t'} &= \rho N_{t'-1} \\
+       &= \rho (\rho N_{t'-2}) \\
+       &= \rho ^{t'}N_{t'-t'} \\
+       &= \rho ^{t'}N_0
+\end{aligned}
+$$
+
+#Problem #2
+
+$$
+\begin{split}
+  \text{For } &0 < \rho < 1 \text{:} \\
+  N_t &= \rho ^t N_0 \\
+  \lim_{t \to \infty} N_t &= \lim_{t \to \infty} \rho ^t N_0 \\
+  N_\infty &= 0 * N_0 \\
+  N_\infty &= 0
+\end{split}
+    \quad \quad \quad 
+\begin{split}
+  \text{For } & \rho > 1 \text{:} \\
+  N_t &= \rho ^t N_0 \\
+  \lim_{t \to \infty} N_t &= \lim_{t \to \infty} \rho ^t N_0 \\
+  N_\infty &= \infty * N_0 \\
+  N_\infty &= \infty \\
+\end{split}
+$$
+
+#Problem #3
+Considering the following simplistic population model,
+$$
+\frac{dN}{dt}=rN, N(0)=N_0
+$$
+there are several pros and cons. First, it is simple and computationally efficient; we can easily determine a solution by hand and determine the population or rate of change for any given $t$. It also models a continuously growing population, which is biologically accurate for certain populations. However, it is not able to account for the dynamics of many (possibly most) populations that have limits like a carrying capacity or a non-zero death rate. 
+
+#Problem #4
+
+Use the Method of separation to solve the IVP:
+$$
+\frac{dN}{dt}=rN, N(0) = N_0 \\ 
+\begin{aligned}
+  \frac{dN}{dt} &= rN \\
+  \frac{1}{N}dN &= r * dt \\
+  \int \frac{1}{N}dN &= \int r * dt \\
+  \log N &= rt +c \\
+  N &= e^ce^{rt} \\
+  N(0) = N_0 &= e^ce^{r(0)} = e^c \\
+  \text{Finally: } N(t) &= N_0e^{rt}
+\end{aligned}
+$$
+
+#Problem #5
+Consider the logistic growth model:
+$$
+\frac{dN}{dt}=r \Big( 1-\frac{N}{K}\Big)N, N(0)=N_0.
+$$
+##(a)
+When is $N(t)$ increasing/decreasing?  
+Increasing when $r \Big( 1-\frac{N}{K}\Big) > 1$, decreasing when $r \Big( 1-\frac{N}{K}\Big) < 1$. 
+
+$$
+\begin{split}
+  \text{For the }&\text{increasing case:} \\
+  1 &< r \Big( 1-\frac{N}{K}\Big) \\
+  \frac{1}{r} &< 1-\frac{N}{K} \\
+  \frac{1}{r} - 1 &< -\frac{N}{K} \\
+  K\Big( 1-\frac{1}{r}\Big) &> N \\
+  \text{Equivalently, } N&< K\Big(\frac{r-1}{r}\Big)
+\end{split}
+    \quad \quad \quad 
+\begin{split}
+  \text{For the }&\text{decreasing case:} \\
+  1 &> r \Big( 1-\frac{N}{K}\Big) \\
+  \frac{1}{r} &> 1-\frac{N}{K} \\
+  \frac{1}{r} - 1 &> -\frac{N}{K} \\
+  K\Big( 1-\frac{1}{r}\Big) &< N \\
+  \text{Equivalently, } N&> K\Big(\frac{r-1}{r}\Big)
+\end{split}
+$$
+
+##(b)
+The rate of change of the population is zero when $\frac{dN}{dt}=0$. Assuming $r,K,N \neq 0$:
+$$
+\begin{aligned}
+0 &= r\Big(1-\frac{N}{K}\Big) \\
+\text{Since } r\neq 0, \quad 0 &= 1-\frac{N}{K} \\
+1 &= \frac{N}{K}, \boxed{N=K}
+\end{aligned}
+$$
+
+#Problem #6
+
+##(a)
+If concentration of a limited resource, $C(t)=0$, then $r(C)=0$ because the resource is needed to survive. If there is no resource, there should be no growth rate. Additionally, we cold like our model to be linear, so we set the non-linear term coefficients to be zero, $c,d,e,f...=0$.
+
+##(b)
+$$
+\begin{aligned}
+\frac{\frac{dN}{dt}}{N} &= r(C(t)) \\
+\frac{dN}{dt} &= r(C(t))*N(t) \\
+\text{With } r(C) \approx bC(t), \frac{dN}{dt} &= bC(t)*N(t)
+\end{aligned}
+$$
+
+##(c)
+The concentration of our limited resource $C(t)$ should decrease as our population increases. The rate of change of this concentration, $\frac{dC}{dt}$, should be determined by a negative rate of change of the total population, scaled by some constant. Thus, we have the expresson $\frac{dC}{dt}= -\alpha \frac{dN}{dt}$. 
+The positive constant $\alpha$ scales the rate of change, possibly representative of a rate of consumption of this resource per individual.
+
+##(d)
+This can be explained in multiple ways. 
+First I'll explain with words: Take the equation $k=C + \alpha N$ to be true for some $k$. Any change to $N$ will result the opposing change to $C$, scaled by $\alpha$ according to $\frac{dC}{dt}= -\alpha \frac{dN}{dt}$. Thus, $C+\alpha N$ will not change over time.
+
+If the rate of change of resource concentration in inversely proporational to the rate of change of the population, scaled by $\alpha$, then any positive change 
+
+
+Now I'll explain algebraically:
+$$
+\begin{aligned}
+\int \frac{dC}{dt}dt &= -\alpha \int \frac{dN}{dt}dt \\
+C &= -\alpha N+k \\
+k &= C+\alpha N
+\end{aligned}
+$$
+
+
+##(e)
+$$
+\begin{split}
+  \text{Given }&\text{the following:} \\
+  \frac{dN}{dt}&= bC(t)N(t) \\
+  k &= C+ \alpha N
+\end{split}
+    \quad \quad \quad 
+\begin{split}
+  \text{We }&\text{have:} \\
+  \frac{dN}{dt} &= b(k-\alpha N(t))N(t)
+\end{split}
+$$
+
+##(f)
+$$
+\begin{split}
+  \text{Take the follow}&\text{ing to be true:} \\
+  r &= \frac{b}{k} \\
+  K &= \frac{k}{\alpha}
+\end{split}
+    \quad \quad \quad 
+\begin{split}
+  \text{Then we }&\text{have:} \\
+  \frac{dN}{dt} &= b(k-\alpha N(t))N(t) \\
+  \frac{dN}{dt} &= \frac{b}{k} (1-\frac{\alpha}{k}N(t))N(t) \\
+  \frac{dN}{dt} &= r \Big(1-\frac{N(t)}{K}\Big)N(t)
+\end{split}
+$$
+
+##(g)
+$r$ represents a scaler for the growth rate relative to the current population. $r$ is most likely taken to be positive, but not necessarily greater or less than 1. 
+$K$ represents a carrying capacity in ecological population models. As $N$ approaches $K$, the $\Big( 1-\frac{N}{K}\Big)$ term approaches zero, making the rate of change of the population approach zero as well. This is realistic because once the population reaches the carrying capacity the environment can no longer support more individuals but does not necessarily kill them off (which would be a negative rate of change).
+
+
+
+
+
+
+
+
+
+
+
+
