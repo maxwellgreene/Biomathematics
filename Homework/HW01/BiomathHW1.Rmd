@@ -6,7 +6,11 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,fig.width = 6,fig.height=4)
+library(mosaic)
+library(mosaicCalc)
+library(deSolve)
+library(ggplot2)
 ```
 
 #Problem #1
@@ -170,6 +174,56 @@ $$
 ##(g)
 $r$ represents a scaler for the growth rate relative to the current population. $r$ is most likely taken to be positive, but not necessarily greater or less than 1. 
 $K$ represents a carrying capacity in ecological population models. As $N$ approaches $K$, the $\Big( 1-\frac{N}{K}\Big)$ term approaches zero, making the rate of change of the population approach zero as well. This is realistic because once the population reaches the carrying capacity the environment can no longer support more individuals but does not necessarily kill them off (which would be a negative rate of change).
+
+
+#Problem #7
+Solve the following DE:
+$$
+\begin{split}
+  \frac{dN}{dt}&=r\Big(1-\frac{N}{K}\Big)N \\
+  \frac{1}{\Big(1-\frac{N}{K}\Big)N}dN &= rdt \\
+  \int \frac{1}{\Big(1-\frac{N}{K}\Big)N}dN &= \int rdt 
+  \quad \text{  Solve LHS: } \Rightarrow \\
+   -\ln\Big( 1-\frac{K}{N} \Big) &= rt \\
+   1-\frac{K}{N} &= e^{-rt} \\
+   N(t) &= \frac{K}{1-e^{-rt}}
+\end{split}
+    \quad \quad \quad 
+\begin{split}
+  \text{Solving LHS w/} &\text{ u-substitution:} \\
+  \int \frac{1}{\Big(1-\frac{N}{K}\Big)N}dN &= 
+  \int \frac{K}{N\Big( K-N \Big)}dN = \\ 
+  -K \int \frac{1}{N\Big( N-K \Big)}dN &=
+  -K \int \frac{1}{N^2 \Big( 1-\frac{K}{N} \Big)}dN \\
+  \text{Let } u= 1-\frac{K}{N}. \text{ Then, }\frac{du}{dN} &= \frac{K}{N^2}, \frac{N^2}{K}du=dN \\
+  \text{Substituting... } \\
+  -K \int \frac{1}{N^2 \Big( 1-\frac{K}{N} \Big)}dN &=
+  -\int \frac{1}{1-\frac{K}{N}}du = -\int \frac{1}{u}du \\
+  = -\ln(u) &= \boxed{ -\ln\Big( 1-\frac{K}{N} \Big)}
+\end{split}
+$$
+
+Graphing this function...
+```{r}
+x <- seq(from=0,to=10,length.out=101)
+K <- 100; r <- .5; N0 <- 10;
+y <- K/(1-exp(-r*x))
+y2  <- (N0*K)/(N0+(K-N0)*(exp(-r*x)))
+#My obtained answer:
+plot(x,y)
+#Correct solution:
+plot(x,y2)
+```
+
+#Problem #8
+```{r}
+solN <- integrateODE(dN~r*(1-N/K)*N,r=0.5,tdur=list(from=0,to=10),N=4,K=10)
+plotFun(solN$N(t)~t,ylim=range(4,15),t.lim=range(0,10));
+solN2 <- integrateODE(dN~r*(1-N/K)*N,r=0.5,tdur=list(from=0,to=10),N=15,K=10)
+plotFun(solN2$N(t)~t,add=TRUE)
+```
+
+
 
 
 
