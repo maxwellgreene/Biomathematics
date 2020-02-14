@@ -1,0 +1,71 @@
+---
+title: "Biomath HW2"
+author: "Maxwell Greene"
+date: "February 13, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 6,fig.height=4)
+library(mosaic)
+library(mosaicCalc)
+library(deSolve)
+library(ggplot2)
+```
+
+#Problem #1
+Consider the equation
+$$
+\frac{dN}{dt}= \kappa - rN \text{,  where } \kappa , r>0
+$$
+
+##a) 
+If the populaton is above $\frac{\kappa}{r}$, it will decrease until it reaches $\frac{\kappa}{r}$. If it below it will increase until it reaches $\frac{\kappa}{r}$. Notably, the maximum increase of the function is $\kappa$, whereas there is no limit to the rate of decrease.  
+Equivalently,
+$$
+\frac{dN}{dt}>0 \text{ if } \kappa-rN>0, \frac{\kappa}{r}>0 \\
+\frac{dN}{dt}<0 \text{ if } \kappa-rN<0, \frac{\kappa}{r}<0
+$$
+This implies a constant birth rate, $\kappa$, and a death rate proportional to the populaton, scaled by the factor $r$.
+
+
+##b)
+The population will stabilize at $N=\frac{\kappa}{r}$ for the reasons in (a).
+
+##c)
+$$
+\begin{aligned}
+\frac{dn}{dt} &= \kappa -rN \\
+\int \frac{1}{\kappa -rN}dN &= \int dt \\
+-\frac{1}{r} \ln(\kappa -rN)&=t+c \\
+N(t)=-\frac{1}{r} \Big( e^{r(t+c)}-\kappa \Big) &
+\text{, } \quad N(0)=N_0 \\
+\therefore \quad c = -\frac{1}{r}\ln \Big( \kappa -rN\Big)
+\end{aligned}
+$$
+
+##d)
+Yes, this solution does fit the results calculated above.
+See below for justification
+```{r}
+r <- .75; k <- 10; N0 <- 10; c <- -(1/r)*(log(k-r*N0));
+t <- seq(0,10,length.out=1001)
+y <- -(1/r)*(exp(-r*(t+c))-k)
+plot(t,y)
+```
+
+#Problem #2
+$$
+\begin{aligned}
+X(t)&=X_\infty+(X_0-X_\infty)e^{-\lambda t} \\
+X(0)&=X_\infty+(X_0-X_\infty)e^0 = X_\infty+X_0-X_\infty = X_0 \\
+\lim_{t \rightarrow \infty} X(t) &= X_\infty -\lambda (X_0-X_\infty)e^{-\infty} = X_\infty \\
+\frac{dX}{dt} &= X_\infty - \lambda(X_0-X_\infty)e^{-\lambda t}
+\end{aligned}
+$$
+
+
+
+
+
+
