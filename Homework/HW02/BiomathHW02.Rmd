@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,fig.width = 6,fig.height=4)
+knitr::opts_chunk$set(echo = TRUE,fig.width = 5,fig.height=3)
 library(mosaic)
 library(mosaicCalc)
 library(deSolve)
@@ -84,11 +84,45 @@ $$
 $$
 
 #Problem #5
+##a
+Based on the abstract the authors recognized a societal problem, Honey Bee colony failure, and set out to produce a theoretical model of the process. This model can be used to inform biologists of the dynamics of the colony and creates a framework for further investigation into the issue. For example, if they could show that colony dynamics are effected more by foraging death rate than brood death rate, this would guide experimenters to investigate this part of colony dynamics.
+
+##b
+The authors seek to address the problem of modelling and creating a framework for quantifying colony dynamics, particularly as it pertains to colony failure. 
+
+##c
+Not only would this mathematical model help biologists to understand colony dynamics, it would guide them in conducting their own research so that they can collect informative data fro the model. Once this data has been collected (ideally in an efficient manor as instructed by the model), it can be tested using the model and verified with real-world observations. For example, under what environmental conditions the colonies are collapsing.
+
+##d
+According to the paper, "a honey bee colony is a population of related and closely interacting individuals that form a highly complex society." Presumably, the death or survival of one individual contributes to the dynamics of the system and if their survival is irrelevant, they may not be considered as part of the system.
+
+##e
+There are many unique qualities of a honeybee colony that qualify the form of the mathematical model. For example, that one can consider individuals part of distinct, task-performing groups whose transitions can be quanitifed based on a limited set of information. In particular, this paper simplifies colony task performance into 3 (or 4) complartments: brood, hive bees, foragers and dead individuals. Transitions are considered unidirectional as an individual matures, since we can neglect extraneous transitions. They also list a few particular processes governing these transitions, such as social inhibition and colony size effects on brood production. 
+
+##f
+The authors qualify the biological proposition that certain social variables can modify transitions between caste states by listing several processes that are responsible for this (e.g. in (e)). Social factors such as phermones govern the division of labour structure in these colonies by effecting caste transition rates. In other words, as is commonly noted in collective behavior, there is no central system governing these interactions, the social structure itself modifies colony dynamics. 
+
 
 #Problem #6
+##a
+The purpose of this article is to propose a model for immune system response in differing conditions, particularly as it relates to inflammation and the respiratory system. Additionally, they focus on malfunctioning conditions such as disease of genetic abnormality that may present particular conditions under which the model can be tested. 
 
+##b
+The authors seek to address the problem of testing certain dysfunctional conditions on the inflammatory response in the repiratory system by modelling immune system repsonse including cytokines, bacteria, macrophages and the factors governign their interaction.
 
+##c
+A mathematical model allows biologists to intimately test and observe the dynamics of the inflammatory response that they may not be able to in a laboratory setting. As mentioned in the paper, this is a very sensitive system to initial conditions, which is most likely representative in the real world as well. Therefore, an accurate model can bring insight into exactly which factors are responsible for such results.
 
+##d
+**Macrophage**: The macrophage seems to be a general purpose immune system cell that participates in a variety of immune functions. Actions include engulfing and destroying bacteria, recruiting more immune cells and mediating tissue repair. They can also become specialized within tissues and reside in that area, performing maintenance tasks not associated with the immune system 
+  
+**Cytokine**: Messengers sometimes released by macrophages that are responsible for a number of processes including recruitment of both inflammatory and anti-inflammatory processes.
+  
+**Inflammation**: One aspect of the immune response that results from the recruitment of immune processes, increased bloodflow to allow for transportation to and from the site.
+  
+##e
+**Inflammation** vs. **Chronic Inflammation**:
+Inflammation is a healthy response of the body that coinsides with the immune respnse and will subside when the issue has been solved. Chronis inflammation, however, is that which persists for longer than would seem necessary if the issue were solved. In this case, the immune system has not successfully solved the problem and inflammation continues to occur. 
 
 
 
