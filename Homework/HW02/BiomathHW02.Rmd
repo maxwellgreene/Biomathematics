@@ -1,8 +1,10 @@
 ---
-title: "Biomath HW2"
+title: "Biomath HW02"
 author: "Maxwell Greene"
 date: "February 13, 2020"
 output: pdf_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +21,7 @@ $$
 \frac{dN}{dt}= \kappa - rN \text{,  where } \kappa , r>0
 $$
 
-##a) 
+##a)
 If the populaton is above $\frac{\kappa}{r}$, it will decrease until it reaches $\frac{\kappa}{r}$. If it below it will increase until it reaches $\frac{\kappa}{r}$. Notably, the maximum increase of the function is $\kappa$, whereas there is no limit to the rate of decrease.  
 Equivalently,
 $$
@@ -63,6 +65,44 @@ X(0)&=X_\infty+(X_0-X_\infty)e^0 = X_\infty+X_0-X_\infty = X_0 \\
 \frac{dX}{dt} &= X_\infty - \lambda(X_0-X_\infty)e^{-\lambda t}
 \end{aligned}
 $$
+
+#Problem #3
+```{r}
+func <- dC ~ qi*(v-C)/(v0+(qi-q0)*t)
+solN <- integrateODE(func,v0=100,v=35,qi=5,q0=1,C=5,tdur=list(from=0,to=10))
+plotFun(solN$C(t)~t,ylim=range(4,16),t.lim=range(0,10))
+```
+
+#Problem #4
+System of equations for figure #1:
+$$
+\begin{aligned}
+\frac{dX_1}{dt}&=L-x_1(a_{01}+a_{21}+a_{31})+x_3a_{13}+x_2a_{12}-x_1a_{01}\\
+\frac{dX_2}{dt}&=x_1a_{21}-x_2(a_{02}+a_{12}) \\
+\frac{dX_3}{dt}&=x_1a_{31}-x_3a_{13}
+\end{aligned}
+$$
+
+#Problem #5
+
+#Problem #6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
