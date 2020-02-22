@@ -1,0 +1,44 @@
+---
+title: "Biomath HW03"
+author: "Maxwell Greene"
+date: "February 20, 2020"
+output: pdf_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width = 5,fig.height=3)
+library(mosaic)
+library(mosaicCalc)
+library(deSolve)
+library(ggplot2)
+```
+
+
+#Problem 1,2,3
+```{r}
+x1 <- seq(0,3,length.out = 101)
+y1 <- x1/(1+x1)
+y2 <- (x1^2)/(1+x1^2)
+y3 <- (x1^3)/(1+x1^3)
+ggplot(data=data.frame(y1=y1,y2=y2,y3=y3,x1=x1)) + 
+  geom_line(aes(x=x1,y=y1)) + 
+  geom_line(aes(x=x1,y=y2)) + 
+  geom_line(aes(x=x1,y=y3))
+```
+
+As $n$ increases for the function $f(x) = \frac{x^n}{1+x^n}$ where $n$ is a positive integer, the function has the same values for $f(0)=0, f(x)=1 \text{ as } x \rightarrow \infty $ with differing behavior in between. More specifically, $f(x)$ is lesser near $x=0$ and greater near $x=1,2,3...$ as $n$ increases. Intuitively, as $n$ increases the $+1$ term in the denominator becomes more or less "impactful" to the resulting ratio depending on whether $x>1$ or $x<1$; as $x$ increases with $x>1, n \text{ large}$, the resulting value approaches 1 faster since the $x^n$ value departs from $1$ significantly faster.
+
+
+
+
+
+
+
+
+
+
+
+
+
