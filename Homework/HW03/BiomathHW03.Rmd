@@ -16,7 +16,7 @@ library(ggplot2)
 ```
 
 
-#Problem 1,2,3
+#Problems 1,2,3
 ```{r}
 x1 <- seq(0,3,length.out = 101)
 y1 <- x1/(1+x1)
@@ -30,7 +30,7 @@ ggplot(data=data.frame(y1=y1,y2=y2,y3=y3,x1=x1)) +
 
 As $n$ increases for the function $f(x) = \frac{x^n}{1+x^n}$ where $n$ is a positive integer, the function has the same values for $f(0)=0, f(x)=1$ as $x \rightarrow \infty$ with differing behavior in between. More specifically, $f(x)$ is lesser near $x=0$ and greater near $x=1,2,3...$ as $n$ increases. Intuitively, as $n$ increases the $+1$ term in the denominator becomes more or less "impactful" to the resulting ratio depending on whether $x>1$ or $x<1$; as $x$ increases with $x>1, n \text{ large}$, the resulting value approaches 1 faster since the $x^n$ value departs from $1$ significantly faster.
 
-#Problem #4
+#Problem 4
 Given $\frac{dx}{dt}= \Phi (t) - \lambda x$ and $y=f(x)$,
 ##a)
 $$
@@ -52,7 +52,7 @@ $$
 Considering the particular case $y=f(x)=\frac{x}{k+x}$:
 
 ###i)
-Finding $x=f^{-1}=...$:
+Finding $x=f^{-1}(y)$:
 $$
 \begin{aligned}
 y&=\frac{x}{k+x}\\
@@ -166,7 +166,7 @@ $$
 \end{aligned}
 $$
 
-#Problem #5
+#Problem 5
 Write the rate equations governed by the given system.
 $$
 \begin{aligned}
@@ -188,12 +188,81 @@ $$
 $$
 
 
+#Problem 7
+State the dimensions of $\alpha, \beta, \gamma$ where $\alpha, \beta, \gamma$ positive and $\beta > 2 \gamma \lambda$ in the following equation:
 
+$$
+\begin{aligned}
+\frac{dx}{dt} &= \alpha y +\beta \frac{x^2}{\gamma ^2 + x^2}- \lambda x
+\\
+\Big[ \frac{dx}{dt} \Big] &= 
+\big[ \alpha y \big]  =
+\Big[\beta \frac{x^2}{\gamma ^2 + x^2} \Big] = 
+\Big[ \lambda x \Big] = 
+\frac{\text{concentration}}{\text{time}}
+\\
+\big[ x \big] &= \text{concentration}, 
+\big[ y \big] = \text{concentration} 
+\\
+\big[ \alpha \big] &= \frac{\text{concentration}}{\text{time}} *
+\frac{1}{\text{concentration}} = \frac{1}{\text{time}}
+\\
+\big[ \gamma \big] &= \text{concentration}
+\\
+\big[ \beta \big] &= \frac{\text{concentration}}{\text{time}} , 
+\text{ becuase } \Big[ \gamma^2 + x^2 \Big] = \text{concentration}^2,
+\Big[ \frac{x^2}{\gamma^2 + x^2} \Big] = 1
+\\
+\big[ \lambda \big] &= \frac{1}{\text{time}}
+\end{aligned}
+$$
 
+#Problem 8
+Determine all dimensions of variables in equations (1)-(4) in the model of inflammation paper:
+$$
+\begin{aligned}
+\big[ M \big] &= \text{population (alveolar macrophage)} 
+= \text{cells}
+&& \Big[ \frac{dM}{dt} \Big] = \frac{\text{population}}{\text{time}}
+=\frac{\text{cells}}{\text{minute}}
+\\
+\big[ C \big] &= \text{concentration (inflammatory cytokines)}
+=\frac{pg}{mL}
+&&\Big[ \frac{dC}{dt} \Big] = \frac{\text{concentration}}{\text{time}}
+=\frac{pg}{mL*\text{minute}}
+\\
+\big[ A \big] &= \text{concentration (anti-inflammatory cytokines)} =\frac{pg}{mL}
+&& \Big[ \frac{dA}{dt} \Big] = \frac{\text{concentration}}{\text{time}}
+=\frac{pg}{mL*\text{minute}}
+\\
+\big[ B \big] &= \text{population (generic pathogen)} = \text{cells} 
+&& \Big[ \frac{dB}{dt} \Big] = \frac{\text{population}}{\text{time}}
+=\frac{\text{cells}}{\text{minute}}
+\\
+\end{aligned}
+$$
 
+![See table 2 here for the particulars of the parameters](Table2.png)
 
-
-
+#Problem 9
+Nondimensionalize $\frac{dN}{dt}=rN^2(1-\frac{N}{K})$ with $x=\frac{N}{K}$, $\tau =rKt$:
+$$
+\begin{aligned}
+\frac{dX}{d \tau} &= \frac{dX}{dN}\frac{dN}{dt}\frac{dt}{d \tau} \\
+\frac{dX}{dN}= \frac{1}{K}, \quad \frac{dN}{dt} &= rN^2\Big(1-\frac{N}{K}\Big), \quad \frac{dt}{d \tau} = \frac{1}{rK} \\
+\frac{dX}{d \tau} &= \frac{1}{K} * \frac{1}{rK} * rN^2\Big(1-\frac{N}{K}\Big) \\
+&= \frac{N^2}{K^2}\Big(1-\frac{N}{K}\Big)\\
+\frac{dX}{d \tau}&= X^2\big( 1-X\big)\\
+\end{aligned}
+$$
+Equilibria values are those values of $X$ that satisfy $\frac{dX}{d\tau}=0$:
+$$
+\frac{dX}{d \tau}= X^2\big( 1-X\big)\\
+X=0,1
+$$
+We examine the behavior of the second derivative $\frac{d^2X}{d\tau ^2}$ at $X=0,1$ to determine stability of equilibira values:  
+* For $X=0$,  $\frac{d^2X}{d\tau ^2}=0$ and this gives us no information.  
+* For $X=1$,  $\frac{d^2X}{d\tau ^2}<0$ and we know this is a stable equilibrium.
 
 
 
