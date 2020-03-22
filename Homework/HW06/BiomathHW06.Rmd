@@ -1,0 +1,168 @@
+---
+title: "Biomath HW06"
+author: "Maxwell Greene"
+date: "March 18, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(mosaic)
+library(deSolve)
+library(phaseR)
+figW=6;figH=3.6;
+```
+
+#Problem #1
+Non-Dimensionalize the following system of equations:
+$$
+\begin{aligned}
+\frac{dx}{dt} &= \alpha x - \beta xy \\
+\frac{dy}{dt} &= \gamma xy - \delta y
+\end{aligned}
+$$
+
+Start with setting non-dimensionalized values to arbitrary scalings of the original, dimensioned values.
+
+$$
+\begin{aligned}
+X & = \frac{x}{x_1} && \frac{dX}{dT} = \frac{dX}{dx}\frac{dx}{dt}\frac{dt}{dT} \\
+Y & = \frac{y}{y_1} && \frac{dY}{dT} = \frac{dY}{dy}\frac{dy}{dt}\frac{dt}{dT} \\
+\end{aligned}
+$$
+This non-dimensionalized system becomes
+
+$$
+\begin{aligned}
+\frac{dX}{dT} &= \Big( \frac{t_1}{x_1}\Big) \Big( \alpha x - \beta xy \Big) &&= \Big( \frac{t_1}{x_1}\Big) \Big( \alpha x_1X - \beta x_1Xy_1Y \Big) \\ 
+& &&= \Big[ \alpha t_1 \Big] X - \Big[ \beta t_1 y_1 \Big] XY \\
+\frac{dY}{dT} &= \Big( \frac{t_1}{y_1}\Big) \Big( \gamma xy - \omega y \Big) &&= \Big( \frac{t_1}{y_1}\Big) \Big( \gamma x_1X y_1Y - \beta y_1Y \Big) \\ 
+& &&= \Big[ \gamma t_1 x_1 \Big] XY - \Big[ \omega t_1 \Big] Y
+\end{aligned}
+$$
+Now we must assign values to the parameters such that the bracketed terms will be simplified.  
+The substitution 
+$$
+t_1 = \frac{1}{\alpha}, \quad
+y_1 = \frac{\alpha}{\beta} \quad
+x_1 = \frac{\alpha}{\gamma}
+$$ 
+simplifies the parameters to this dimensionless system of equations:
+$$
+\begin{aligned}
+\frac{dX}{dT} &= X-XY \\
+\frac{dY}{dT} &= XY-aY, \quad \text{where } a=\frac{\gamma}{\alpha}
+\end{aligned}
+$$
+
+```{r,echo=FALSE}
+general_linear <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    dx <- a*state[1] + b*state[2]
+    dy <- c*state[1] + d*state[2]
+    list(c(dx,dy))
+  })
+}
+```
+  
+  
+#Problem #2
+##(a)
+```{r,echo=FALSE}
+a_val = -1; b_val = 4; c_val = -3; d_val = -1;
+A <- matrix(c(a_val,b_val,c_val,d_val),2,2,byrow = T)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=figW,fig.height=figH}
+print(paste("Tr(A)  > 0 : ", sum(diag(A))>0, "  det(A) > 0 : ", det(A)>0))
+print(paste("det(A) > (Tr(A)^2)/4 : ", (sum(diag(A))^2 - 4*det(A))<0))
+parameters <- c(a=a_val,b=b_val,c=c_val,d=d_val)
+A_flowfield  <- flowField(general_linear, xlim = c(-2, 2), ylim = c(-2, 2),
+                          parameters = parameters, points = 19, add = FALSE)
+state <- matrix(c(1,1,1,-1,-1,1,-1,-1,0,2,0,-2,-1,0,1,0),
+                                    8, 2, byrow = TRUE)
+A_trajs <- trajectory(general_linear, y0 = state, tlim = c(0, 10),
+                      parameters = parameters,add=TRUE)
+```
+
+##(b)
+```{r,echo=FALSE}
+a_val = 2; b_val = 3; c_val = 0; d_val = -4;
+B <- matrix(c(a_val,b_val,c_val,d_val),2,2,byrow = T)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=figW,fig.height=figH}
+print(paste("Tr(B)  > 0 : ", sum(diag(B))>0, "  det(B) > 0 : ", det(B)>0))
+print(paste("det(B) > (Tr(B)^2)/4 : ", (sum(diag(B))^2 - 4*det(B))<0))
+parameters <- c(a=a_val,b=b_val,c=c_val,d=d_val)
+B_flowfield  <- flowField(general_linear, xlim = c(-2, 2), ylim = c(-2, 2),
+                          parameters = parameters, points = 19, add = FALSE)
+state <- matrix(c(1,1,1,-1,-1,1,-1,-1,0,2,0,-2,-1,0,1,0),
+                                    8, 2, byrow = TRUE)
+B_trajs <- trajectory(general_linear, y0 = state, tlim = c(0, 10),
+                      parameters = parameters,add=TRUE)
+```
+
+##(c)
+```{r,echo=FALSE}
+a_val = -1; b_val = 0; c_val = 0; d_val = 1;
+C <- matrix(c(a_val,b_val,c_val,d_val),2,2,byrow = T)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=figW,fig.height=figH}
+print(paste("Tr(C)  > 0 : ", sum(diag(C))>0, "  det(C) > 0 : ", det(C)>0))
+print(paste("det(C) > (Tr(A)^2)/4 : ", (sum(diag(C))^2 - 4*det(C))<0))
+parameters <- c(a=a_val,b=b_val,c=c_val,d=d_val)
+C_flowfield  <- flowField(general_linear, xlim = c(-2, 2), ylim = c(-2, 2),
+                          parameters = parameters, points = 19, add = FALSE)
+state <- matrix(c(1,1,1,-1,-1,1,-1,-1,0,2,0,-2,-1,0,1,0),
+                                    8, 2, byrow = TRUE)
+C_trajs <- trajectory(general_linear, y0 = state, tlim = c(0, 10),
+                      parameters = parameters,add=TRUE)
+```
+
+##(d)
+```{r,echo=FALSE}
+a_val = 8; b_val = -11; c_val = 6; d_val = -9;
+D <- matrix(c(a_val,b_val,c_val,d_val),2,2,byrow = T)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=figW,fig.height=figH}
+print(paste("Tr(D)  > 0 : ", sum(diag(D))>0, "  det(D) > 0 : ", det(D)>0))
+print(paste("det(D) > (Tr(A)^2)/4 : ", (sum(diag(D))^2 - 4*det(D))<0))
+parameters <- c(a=a_val,b=b_val,c=c_val,d=d_val)
+D_flowfield  <- flowField(general_linear, xlim = c(-2, 2), ylim = c(-2, 2),
+                          parameters = parameters, points = 19, add = FALSE)
+state <- matrix(c(1,1,1,-1,-1,1,-1,-1,0,2,0,-2,-1,0,1,0),
+                                    8, 2, byrow = TRUE)
+D_trajs <- trajectory(general_linear, y0 = state, tlim = c(0, 10),
+                      parameters = parameters,add=TRUE)
+```
+
+#Problem #3
+$$
+\begin{aligned}
+\frac{dx}{dt} &= y-(x^2+y^2)x \\
+\frac{dy}{dt} &= -x-(x^2+y^2)y
+\end{aligned}
+$$
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE}
+prob3system <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    x <- state[1]; y <- state[2];
+    dx <- y-(x^2+y^2)*x
+    dy <- -x-(x^2+y^2)*y
+    list(c(dx,dy))
+  })
+}
+
+D_flowfield  <- flowField(prob3system, xlim = c(-2, 2), ylim = c(-2, 2),
+                          parameters = parameters, points = 19, add = FALSE)
+state <- matrix(c(2,2,2,-2,-2,2,-2,-2),4, 2, byrow = TRUE)
+D_trajs <- trajectory(prob3system, y0 = state, tlim = c(0, 10),
+                      parameters = parameters,add=TRUE)
+```
+
+
+
