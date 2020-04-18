@@ -1,0 +1,193 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Biomath HW06},
+            pdfauthor={Maxwell Greene},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Biomath HW06}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Maxwell Greene}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{March 18, 2020}
+
+
+\begin{document}
+\maketitle
+
+\section{Problem \#1}\label{problem-1}
+
+Non-Dimensionalize the following system of equations: \[
+\begin{aligned}
+\frac{dx}{dt} &= \alpha x - \beta xy \\
+\frac{dy}{dt} &= \gamma xy - \delta y
+\end{aligned}
+\]
+
+Start with setting non-dimensionalized values to arbitrary scalings of
+the original, dimensioned values.
+
+\[
+\begin{aligned}
+X & = \frac{x}{x_1} && \frac{dX}{dT} = \frac{dX}{dx}\frac{dx}{dt}\frac{dt}{dT} \\
+Y & = \frac{y}{y_1} && \frac{dY}{dT} = \frac{dY}{dy}\frac{dy}{dt}\frac{dt}{dT} \\
+\end{aligned}
+\] This non-dimensionalized system becomes
+
+\[
+\begin{aligned}
+\frac{dX}{dT} &= \Big( \frac{t_1}{x_1}\Big) \Big( \alpha x - \beta xy \Big) &&= \Big( \frac{t_1}{x_1}\Big) \Big( \alpha x_1X - \beta x_1Xy_1Y \Big) \\ 
+& &&= \Big[ \alpha t_1 \Big] X - \Big[ \beta t_1 y_1 \Big] XY \\
+\frac{dY}{dT} &= \Big( \frac{t_1}{y_1}\Big) \Big( \gamma xy - \omega y \Big) &&= \Big( \frac{t_1}{y_1}\Big) \Big( \gamma x_1X y_1Y - \beta y_1Y \Big) \\ 
+& &&= \Big[ \gamma t_1 x_1 \Big] XY - \Big[ \omega t_1 \Big] Y
+\end{aligned}
+\] Now we must assign values to the parameters such that the bracketed
+terms will be simplified.\\
+The substitution \[
+t_1 = \frac{1}{\alpha}, \quad
+y_1 = \frac{\alpha}{\beta} \quad
+x_1 = \frac{\alpha}{\gamma}
+\] simplifies the parameters to this dimensionless system of equations:
+\[
+\begin{aligned}
+\frac{dX}{dT} &= X-XY \\
+\frac{dY}{dT} &= XY-aY, \quad \text{where } a=\frac{\gamma}{\alpha}
+\end{aligned}
+\]
+
+\section{Problem \#2}\label{problem-2}
+
+\subsection{(a)}\label{a}
+
+\begin{verbatim}
+## [1] "Tr(A)  > 0 :  FALSE   det(A) > 0 :  TRUE"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "det(A) > (Tr(A)^2)/4 :  TRUE"
+\end{verbatim}
+
+\includegraphics{BiomathHW06_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\subsection{(b)}\label{b}
+
+\begin{verbatim}
+## [1] "Tr(B)  > 0 :  FALSE   det(B) > 0 :  FALSE"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "det(B) > (Tr(B)^2)/4 :  FALSE"
+\end{verbatim}
+
+\includegraphics{BiomathHW06_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\subsection{(c)}\label{c}
+
+\begin{verbatim}
+## [1] "Tr(C)  > 0 :  FALSE   det(C) > 0 :  FALSE"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "det(C) > (Tr(A)^2)/4 :  FALSE"
+\end{verbatim}
+
+\includegraphics{BiomathHW06_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\subsection{(d)}\label{d}
+
+\begin{verbatim}
+## [1] "Tr(D)  > 0 :  FALSE   det(D) > 0 :  FALSE"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "det(D) > (Tr(A)^2)/4 :  FALSE"
+\end{verbatim}
+
+\includegraphics{BiomathHW06_files/figure-latex/unnamed-chunk-9-1.pdf}
+
+\section{Problem \#3}\label{problem-3}
+
+\[
+\begin{aligned}
+\frac{dx}{dt} &= y-(x^2+y^2)x \\
+\frac{dy}{dt} &= -x-(x^2+y^2)y
+\end{aligned}
+\]
+
+\includegraphics{BiomathHW06_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+
+\end{document}

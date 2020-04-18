@@ -1,0 +1,190 @@
+---
+title: "BiomathHW07"
+author: "Maxwell Greene"
+date: "April 17, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width=5,fig.height = 3.2)
+library(phaseR)
+library(deSolve)
+library(mosaic)
+```
+
+#Problem #1
+The following is a generic code to classify the behavior of a linear system based on it's trace and eigenvalues. I will use it in each part of the problem 
+
+```{r}
+classify <- function(mat)
+{
+  trace <- sum(diag(mat)); deter <- det(mat)
+  delta <- deter - trace^2/4
+  if(deter < 0){return("saddle")}
+  if(deter ==0)
+  {
+    if(trace > 0){return("unstable line")}
+    if(trace < 0){return("stable line")}
+    if(trace ==0){return("uniform motion")}
+  }
+  if(trace > 0)
+  {
+    if(delta < 0){return("source")}
+    if(delta ==0){return("degenerate source")}
+    if(delta > 0){return("spiral source")}
+  }
+  if(trace ==0){return("center")}
+  if(trace < 0)
+  {
+    if(delta < 0){return("sink")}
+    if(delta ==0){return("degenerate sink")}
+    if(delta > 0){return("spiral sink")}
+  }
+}
+plotSystem <- function(mat)
+{
+  simple <- function(t,state,parameters){
+    with(as.list(c(state,parameters)),{
+    dx <- a*state[1] + b*state[2]
+    dy <- c*state[1] + d*state[2]
+    list(c(dx,dy))
+  })}
+  ff  <- flowField(simple,
+                   xlim = c(-2, 2), ylim = c(-2, 2),
+                   parameters = c(a=mat[1],b=mat[3],c=mat[2],d=mat[4]),
+                   points = 19,add = FALSE)
+  state <- matrix(c(1,1,1,-1,-1,1,-1,-1,0,2,0,-2,-1,0,1,0),
+                                    8, 2, byrow = TRUE)
+  trajs <- trajectory(simple,y0 = state, tlim = c(0, 10),
+                      parameters = c(a=mat[1],b=mat[3],c=mat[2],d=mat[4]),add=TRUE)
+}
+```
+
+##(a)
+$$
+\begin{aligned}
+\dot{x}&=6x+2y \\
+\dot{y}&=2x+3y
+\end{aligned}
+$$
+
+```{r,echo=FALSE,message=FALSE}
+A <- matrix(c(6,2,2,3),nrow = 2)
+print(paste("Phase portrait type: ",classify(A)))
+print(paste("Eigenvalues: ",eigen(A)$value))
+plotSystem(A)
+```
+
+##(b)
+$$
+\begin{aligned}
+\dot{x}&=x+2y \\
+\dot{y}&=4x+3y
+\end{aligned}
+$$
+
+```{r,echo=FALSE,message=FALSE}
+B <- matrix(c(1,4,2,3),nrow = 2)
+print(paste("Phase portrait type: ",classify(B)))
+print(paste("Eigenvalues: ",eigen(B)$value))
+plotSystem(B)
+```
+
+##(c)
+$$
+\begin{aligned}
+\dot{x}&=-2x+4y \\
+\dot{y}&=-x+y
+\end{aligned}
+$$
+
+```{r,echo=FALSE,message=FALSE}
+C <- matrix(c(-2,-1,4,1),nrow = 2)
+print(paste("Phase portrait type: ",classify(C)))
+print(paste("Eigenvalues: ",eigen(C)$value))
+plotSystem(C)
+```
+
+##(d)
+$$
+\begin{aligned}
+\dot{x}&=2x+y \\
+\dot{y}&=x+2y
+\end{aligned}
+$$
+
+```{r,echo=FALSE,message=FALSE}
+D <- matrix(c(2,1,1,2),nrow = 2)
+print(paste("Phase portrait type: ",classify(D)))
+print(paste("Eigenvalues: ",eigen(D)$value))
+plotSystem(D)
+```
+
+##(e)
+$$
+\begin{aligned}
+\dot{x}&=x+5y \\
+\dot{y}&=x-3y
+\end{aligned}
+$$
+
+```{r,echo=FALSE,message=FALSE}
+E <- matrix(c(1,1,5,-3),nrow = 2)
+print(paste("Phase portrait type: ",classify(E)))
+print(paste("Eigenvalues: ",eigen(E)$value))
+plotSystem(E)
+```
+
+##(f)
+$$
+\begin{aligned}
+\dot{x}&=-1x+ay \\
+\dot{y}&=0x+ay \\
+&\text{for }a \neq 0
+\end{aligned}
+$$
+This function changes behavior, dependent on the value of $a$, when it crosses $det(f)=0, tr(f)=0, det(f)=\frac{tr(f)^2}{4}$ lines on the trace-determinant plane. So I will find these critical values alegbraically.
+$$
+\begin{aligned}
+tr(f)&=-1+a=0 \quad \rightarrow \quad \boxed{a=1} \\
+&a=1 \text{ is not critical value since } det(d)<0\\
+det(f)&= -a=0 \quad \rightarrow \quad \boxed{a=0} \\
+delta&=det(f)-\frac{tr(f)^2}{4}=-a-\frac{(a-1)^2}{4} \\
+&=a^2+2a+1 \quad \rightarrow \quad \boxed{a=-1}
+\end{aligned}
+$$
+
+Classification and visualization for $a=-1.5,-1.0,-0.5,0,0.5$:
+```{r,collapse=TRUE}
+f_n1.5 <- matrix(c(-1,0,-1.5,-1.5),nrow = 2)
+f_n1.0 <- matrix(c(-1,0,-1.0,-1.0),nrow = 2)
+f_n0.5 <- matrix(c(-1,0,-0.5,-0.5),nrow = 2)
+f_p0.0 <- matrix(c(-1,0,+0.0,+0.0),nrow = 2)
+f_p0.5 <- matrix(c(-1,0,+0.5,+0.5),nrow = 2)
+classify(f_n1.5)
+classify(f_n1.0)
+classify(f_n0.5)
+classify(f_p0.0)
+classify(f_p0.5)
+
+fs <- list(f_n1.5,f_n1.0,f_n0.5,f_p0.0,f_p0.5)
+deters <- lapply(fs,det)
+traces <- lapply(fs,function(A){sum(diag(A))})
+vals <- seq(from = -2.5,to=2.5,length.out=101)
+plot(vals,vals^2/4,col="blue",
+     xlim=c(-2.5,-.5),ylim=c(-0.5,1.5),
+     type="l",xlab="trace",ylab="determinant")
+points(vals,rep(0,101),col="blue",type="l")
+points(traces,deters,col="red")
+```
+
+Therefore, the system exhibits the following behavior:  
+Sink for $(- \infty<a<-1) \cup (-1,0)$  
+Degenerate sink for $a=-1$  
+Stable line for $a=0$  
+Saddle for $(0<a<\infty)$  
+
+
+
+
+
