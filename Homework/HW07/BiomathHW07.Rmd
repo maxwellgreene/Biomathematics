@@ -71,6 +71,9 @@ $$
 ```{r,echo=FALSE,message=FALSE}
 A <- matrix(c(6,2,2,3),nrow = 2)
 print(paste("Phase portrait type: ",classify(A)))
+```
+Therefore we expect to have two distinct real eigenvalues:
+```{r,echo=FALSE,message=FALSE}
 print(paste("Eigenvalues: ",eigen(A)$value))
 plotSystem(A)
 ```
@@ -86,6 +89,9 @@ $$
 ```{r,echo=FALSE,message=FALSE}
 B <- matrix(c(1,4,2,3),nrow = 2)
 print(paste("Phase portrait type: ",classify(B)))
+```
+Therefore we expect two distinct real eigenvalues:
+```{r,echo=FALSE,message=FALSE}
 print(paste("Eigenvalues: ",eigen(B)$value))
 plotSystem(B)
 ```
@@ -101,6 +107,9 @@ $$
 ```{r,echo=FALSE,message=FALSE}
 C <- matrix(c(-2,-1,4,1),nrow = 2)
 print(paste("Phase portrait type: ",classify(C)))
+```
+Therefore we expect a complex conjugate pair of eigenvalues:
+```{r,echo=FALSE,message=FALSE}
 print(paste("Eigenvalues: ",eigen(C)$value))
 plotSystem(C)
 ```
@@ -116,6 +125,9 @@ $$
 ```{r,echo=FALSE,message=FALSE}
 D <- matrix(c(2,1,1,2),nrow = 2)
 print(paste("Phase portrait type: ",classify(D)))
+```
+Therefore we expect two distinct real eigenvalues:
+```{r,echo=FALSE,message=FALSE}
 print(paste("Eigenvalues: ",eigen(D)$value))
 plotSystem(D)
 ```
@@ -131,6 +143,9 @@ $$
 ```{r,echo=FALSE,message=FALSE}
 E <- matrix(c(1,1,5,-3),nrow = 2)
 print(paste("Phase portrait type: ",classify(E)))
+```
+Therefore we expect two distinct real eigenvalues:
+```{r,echo=FALSE,message=FALSE}
 print(paste("Eigenvalues: ",eigen(E)$value))
 plotSystem(E)
 ```
@@ -161,12 +176,29 @@ f_n1.0 <- matrix(c(-1,0,-1.0,-1.0),nrow = 2)
 f_n0.5 <- matrix(c(-1,0,-0.5,-0.5),nrow = 2)
 f_p0.0 <- matrix(c(-1,0,+0.0,+0.0),nrow = 2)
 f_p0.5 <- matrix(c(-1,0,+0.5,+0.5),nrow = 2)
+```
+```{r}
 classify(f_n1.5)
 classify(f_n1.0)
 classify(f_n0.5)
 classify(f_p0.0)
 classify(f_p0.5)
+```
+Therefore we expect the following eigenvalue combinations (in order):  
+-Distinct real  
+-One real  
+-Distinct real  
+-Distinct real  
+-Distinct real  
+```{r,echo=FALSE}
+print(paste("Eigenvalues: ",eigen(f_n1.5)$value))
+print(paste("Eigenvalues: ",eigen(f_n1.0)$value))
+print(paste("Eigenvalues: ",eigen(f_n0.5)$value))
+print(paste("Eigenvalues: ",eigen(f_p0.0)$value))
+print(paste("Eigenvalues: ",eigen(f_p0.5)$value))
+```
 
+```{r}
 fs <- list(f_n1.5,f_n1.0,f_n0.5,f_p0.0,f_p0.5)
 deters <- lapply(fs,det)
 traces <- lapply(fs,function(A){sum(diag(A))})
