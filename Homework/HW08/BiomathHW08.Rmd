@@ -1,0 +1,232 @@
+---
+title: "R Notebook"
+output: pdf_document
+---
+
+```{r,message=FALSE,warning=FALSE}
+library(phaseR)
+library(deSolve)
+library(mosaic)
+```
+
+#Problem #1
+Show that the following systems are equivalent:
+$$
+\begin{aligned}
+\dot{x} &= x(1-x^2-y^2)-y \quad && \dot{r}=r(1-r^2) \\
+\dot{y} &= y(1-x^2-y^2)+x \quad && \dot{\theta} = 1
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+r^2 &= x^2 + y^2 \quad \rightarrow \quad 
+r\dot{r}=x\dot{x} + y\dot{y} \\
+r\dot{r} &= x[x(1-x^2-y^2)-y] + y[y(1-x^2-y^2)+x] \\
+         &= x^2(1-x^2-y^2)-yx + y^2(1-x^2-y^2)+yx   \\ 
+         &= (x^2+y^2)(1-x^2-y^2)              \\
+         &= (x^2+y^2)(1-(x^2+y^2)) \\
+         &= r^2(1-r^2) \\
+\therefore \dot{r}  &= r(1-r^2)
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\tan(\theta) &= \frac{y}{x}
+\quad \rightarrow \quad 
+\sec^2(\theta) \dot{\theta} = \frac{x\dot{y}-y\dot{x}}{x^2} \\
+\dot{\theta} &= \frac{ x(y(1-x^2-y^2)+x)-y(x(1-x^2-y^2)-y))\cos^2(\theta)}{x^2}\\
+&= \frac{1}{r^2} \Big[ xy(1-(x^2+y^2)) +x^2 - xy(1-(x^2+y^2))+ y^2  \Big] \\
+&= \frac{x^2+y^2}{r^2}
+\\
+\therefore \dot{\theta}  &= 1
+\end{aligned}
+$$
+
+
+
+#Problem #2
+Convert the following system to cartesian:
+$$
+\begin{aligned}
+\dot{r}  &=  r(1-r^2)+\mu r\cos(\theta)\\
+\dot{\theta} &= 1
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+x &= r\cos(\theta) \quad \rightarrow \quad
+\dot{x} = \dot{r}\cos(\theta)-r \dot{\theta} \sin(\theta) \\
+y &= r\sin(\theta) \quad \rightarrow \quad
+\dot{y} = \dot{r}\sin(\theta) -r \dot{\theta} \sin(\theta) \\ \\
+\dot{x}&=\Big[ r(1-r^2)+\mu x \Big]\cos(\theta) -r\sin(\theta) \\
+       &= x(1-r^2) + \mu x \cos(\theta) - y \\
+       &= \boxed{x(1-x^2-y^2) + \frac{\mu x^2}{x^2+y^2} -y} \\
+\dot{y}&=\Big[ r(1-r^2)+\mu x \Big]\sin(\theta) -r\cos(\theta) \\
+       &= y(1-r^2) + \mu x \sin(\theta) - x \\
+       &= \boxed{y(1-x^2-y^2) + \frac{\mu xy}{x^2+y^2} - x} \\
+\end{aligned}
+$$
+
+#Problem #3
+
+##System A
+Algebraically solving for equilibrium gives $y=0,x=10$ as y nullcines and $x=0, y=\frac{-1}{20}x^2-\frac{1}{2}x + 10$ nullclines. Intersections of nullclines occur at $(0,0)$ and $(10,10)$.
+```{r}
+a <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    x <- state[1];y <- state[2]
+    dx <- x*(1-x/20)-(x*y)/(x+10)
+    dy <- 3*y*(x/(x+10)-1/2)
+    list(c(dx,dy))
+  })}
+a_flowField  <- flowField(a,xlim = c(-2,15), ylim = c(-2,15),
+                          parameters = c(),points = 19,add = FALSE)
+a_nullclines <- nullclines(a,xlim = c(-2,15),ylim = c(-2,15),
+                           parameters = c(a=0), points = 500)
+state <- matrix(c(-1,0,5,5,2,8,-1,4),4, 2, byrow = TRUE)
+a_trajectory <- trajectory(a,y0 = state,tlim = c(0, 20),parameters = c(a=0),add=TRUE)
+```
+
+##System B
+Algebraically solving for equilibrium gives $y=0,x=5,x=-15$ as y nullcines and $x=0, y=-\frac{3}{2} \Big( \frac{1}{40}x^2+\frac{25}{40}x-15 \Big)$ x nullclines. Intersections of nullclines occur at $(0,0)$ and $(-15,0)$.
+
+$$
+\begin{aligned}
+3x(1-\frac{x}{40}) &= \frac{2xy}{x+15} \\
+3x(1-\frac{x}{40})(x+15) &= 2xy \\
+3x(x+15-\frac{x^2}{40}-\frac{15x}{40})&=2xy \\
+y&=\boxed{-\frac{3}{2}\Big( \frac{1}{40}x^2+\frac{25}{40}x-15 \Big)}
+\end{aligned}
+$$
+```{r}
+b <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+    x <- state[1];y <- state[2]
+    dx <- 3*x*(1-x/40)-(2*x*y)/(x+15)
+    dy <- y*(2*x/(x+15)-1/2)
+    list(c(dx,dy))
+  })}
+b_flowField  <- flowField(b,xlim = c(-40,40), ylim = c(-40,40),
+                          parameters = c(),points = 19,add = FALSE)
+b_nullclines <- nullclines(b,xlim = c(-40,40),ylim = c(-40,40),
+                           parameters = c(a=0), points = 500)
+state <- matrix(c(-1,5,1,5),2, 2, byrow = TRUE)
+b_trajectory <- trajectory(b,y0 = state,tlim = c(0, 10),parameters = c(a=0),add=TRUE)
+```
+
+##System C
+Algebraically solving for equilibrium gives $y=0,x=30$ as y nullcines and $x=0, y=-(\frac{1}{20}x -20)$ nullclines. Intersections of nullclines occur at $(0,0)$ and $(30,21.5)$.
+
+$$
+\begin{aligned}
+x(1-\frac{x}{20}) &= \frac{xy}{x+20} \\
+x(1-\frac{x}{20})(x+20) &= xy \\
+x(x+20-\frac{x^2}{20}-x)&=xy \\
+y&=\boxed{-(\frac{1}{20}x -20)}
+\end{aligned}
+$$
+
+Unfortunately, I was not able to get the phaseR plots to work for this system. I kept getting an infinite loop error.
+```{r}
+# c <- function(t,state,parameters){
+#   with(as.list(c(state,parameters)),{
+#     x <- state[1];y <- state[2]
+#     dx <- x*(1-x/20)-(x*y)/(x+20)
+#     dy <- 3*y*(x/(x+10)-3/4)
+#     list(c(dx,dy))
+#   })}
+# c_flowField  <- flowField(c,xlim = c(-1,1), ylim = c(-1,1),
+#                           parameters = c(),points = 19,add = FALSE)
+# c_nullclines <- nullclines(c,xlim = c(-1,1),ylim = c(-1,1),
+#                            parameters = c(a=0), points = 500)
+# state <- matrix(c(0,1,1,0),2, 2, byrow = TRUE)
+# c_trajectory <- trajectory(c,y0 = state,tlim = c(0, 10),parameters = c(a=0),add=TRUE)
+```
+
+
+#Problem #4
+##(A)
+The function $f$ should be assumed to have a negatve derivative because the chemical in $S$ is an inhibitor and therefore an increase in concentration will lead to decreased response.
+
+##(B)
+v-nullclines:
+$$
+V(f(S)-r)=0 \\
+V=0, f(S)=r
+$$
+s-nullclines
+$$
+\frac{pV}{W+V}-qS=0 \\
+\frac{pV}{W+V}=qS \\
+S = \frac{p}{q}\Big(\frac{V}{V+Q}\Big)
+$$
+Equilibrium point:
+$$
+S = \frac{p}{q}\Big(\frac{V}{V+Q}\Big) \quad \text{ with } \quad
+S=r \quad \text{gives} \\
+V = \frac{\frac{qr}{p}W}{1-\frac{qr}{p}}
+$$
+
+Linearization:
+$$
+\begin{aligned}
+\dot{V} &= V[f(S)-r]  \quad&& \dot{S} = \frac{pV}{W+V}-qS \\ 
+\dot{V}_V &= f(S)-r   \quad &&\dot{S}_V = \frac{pW}{(W+V)^2} \\
+\dot{V}_S &= Vf'(S) \quad && \dot{S}_S = -q
+\\
+J &= 
+\begin{pmatrix}
+\dot{V}_V & \dot{V}_S \\
+\dot{S}_V & \dot{S}_S
+\end{pmatrix} \\
+J &= 
+\begin{pmatrix}
+f(S)-r & \frac{pW}{(W+V)^2} \\
+Vf'(S) & -q
+\end{pmatrix}
+\end {aligned}
+$$
+
+
+After plugging in the equilibrium points...
+$$
+J =
+\begin{pmatrix}
+0 & -\gamma \\
+\alpha & -q
+\end{pmatrix}
+$$
+
+##(C)
+The determinant is positive, the trace is negative. This means it is some form of sink, the type of which is determined by the relative values of $\gamma , \alpha$ and $q$.
+
+#Problem #5
+$$
+\frac{dN}{d\tau}=rN-cNP-\rho EN \\
+\frac{dP}{d\tau}=bNP-mP-\sigma EP
+$$
+Non-dimensionalization without substitutions:
+$$
+\frac{dx}{dt} = \frac{x}{r{N^*}^2}(r-c\frac{y}{P^*}-\rho E) \\
+\frac{dy}{dt} = \frac{y}{r{N^*}^2}(b\frac{c}{N^*}-m-\sigma E)
+$$
+
+Non-dimensionalized with substitutions $t=r\tau$, $x=\frac{N}{N^*}$, $y=\frac{P}{P^*}$ where $N^*=\frac{b}{r}$ and $P^*=\frac{c}{r}$:
+$$
+\frac{dx}{dt} = \frac{xr}{b^2}(r-yr-\rho E) \\
+\frac{dy}{dt} = \frac{yr}{c^2}(xr-m-\sigma E)
+$$
+with steady states:
+$$
+x=0,y=0,r=0 \\
+y=1-\frac{\rho E}{r}, \quad x=\frac{m+\sigma E}{r}
+$$
+
+
+
+
+
+
