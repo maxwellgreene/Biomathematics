@@ -17,10 +17,21 @@
 \author{Maxwell Greene}
 \date{\today}
 
-\usepackage{Sweave}
 \begin{document}
-\input{SweaveDoc-concordance}
+\SweaveOpts{concordance=TRUE}
 
+<<echo=FALSE>>=
+library(mosaic)
+library(mosaicCalc)
+library(deSolve)
+library(ggplot2)
+library(tidyr)
+library(deSolve)
+library(reshape2)
+library(ggpubr)
+library(gridExtra)
+figW = 5; figH = 3;
+@
 
 \maketitle
 
@@ -64,14 +75,14 @@ Eusocial insects have evolved to fill very specific ecological niches, yet there
 The system of equations in eq. (\ref{eq: system}) describes the compartment diagram in figure \ref{fig: Compartment Diagram}. Three main quantities are modelled: energy, worker population and reproductive population. Worker and reproductive population are each dependent on the energy quantity, but reproductives only contribute under certain circumstances. Workers contribute to energy at a rate of $Kw$, energy per worker per time. For the purpose of simplicity, the $K_r$ value is held constant at $0$ for all systems with initial conditions $E=1, W=0, R=1$. Energy is allocated to the populations using the $Br$ quantity, which represents the fraction of reproductive resources being invested in reproductives. See table \ref{table: variables} for a summary of variables and parameters used. 
 
 \begin{table}
-\begin{tabular}{||c l l |}
+\begin{tabular}{|| c p{9cm} l |}
 \hline
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Table of Variables %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- Variable & Description (IV - Independent Variable, DV - Dependent Variable) & Units  \\ [0.5ex] 
+ Variable & Description (IV - Independent, DV - Dependent) & Units  \\ [0.5ex] 
  \hline\hline
  $R$  & DV: Number of Reproductives 			& $reproductives$ \\  [5pt]
  $W$ & DV: Number of Workers    					& $workers$ \\ [5pt]
@@ -87,6 +98,28 @@ The system of equations in eq. (\ref{eq: system}) describes the compartment diag
 \label{table: variables}
 \caption{Variables used in continuous model, figure \ref{fig: Compartment Diagram}.}
 \end{table}
+
+<<echo=FALSE>>=
+env <- c( 0.4 , 0.5 , 0.5 , 0.8 )
+col <- c( 0.1 , 0.1 , 0.9 , 0.4 )
+Kf0 <- c( 1.0 , 0.75, 0.15, 1.7 )
+Pe0 <- c( 0.0 , 0.8 , 0.0 , 1.0 )
+
+parameters <- c(Dw1 = env[1], Dw2 = env[2], Dw3 = env[3], Dw4 = env[4],
+                Br1 = col[1], Br2 = col[2], Br3 = col[3], Br4 = col[4],
+                Kf1 = Kf0[1], Kf2 = Kf0[2], Kf3 = Kf0[3], Kf4 = Kf0[4],
+                Pe1 = Pe0[1], Pe2 = Pe0[2], Pe3 = Pe0[3], Pe4 = Pe0[4],
+                Cw = 1/3, Cr = 1/4, Kr = 0, Kw = 2, Dr = .01, Ttol = 100, critval=0.9)
+
+p <- as.list(parameters); t <- seq(from=0,to=1,length.out=1001); times <- t*100
+Dw <- p$Dw4*(p$Dw1*(t-1)^2 + p$Dw2*(1-4*(t-.5)^2) + p$Dw3*t^2)
+Br <- p$Br4*(p$Br1*(t-1)^2 + p$Br2*(1-4*(t-.5)^2) + p$Br3*t^2)
+Br_bang <- ifelse(t < p$critval,0,1)
+Kw <- p$Kf4*(p$Kf1*(t-1)^2 + p$Kf2*(1-4*(t-.5)^2) + p$Kf3*t^2)
+Pe <- p$Pe4*(p$Pe1*(t-1)^2 + p$Pe2*(1-4*(t-.5)^2) + p$Pe3*t^2)
+
+state <- c(Workers = 0, Reproductives = 1, Energy = 1)
+@
 
 \begin{figure}
 	\centering
@@ -111,6 +144,35 @@ The system of equations in eq. (\ref{eq: system}) describes the compartment diag
 \label{eq: system}
 \end{equation}
 
+<<echo=FALSE>>=
+SDE_std <- function(t, state, parameters){
+  with(as.list(c(state, parameters)),{
+    
+          tt <- t/Ttol
+          Dw <- Dw4*(Dw1*(tt-1)^2 + Dw2*(1-4*(tt-.5)^2) + Dw3*tt^2)
+          Br <- Br4*(Br1*(tt-1)^2 + Br2*(1-4*(tt-.5)^2) + Br3*tt^2)
+          
+          dWorkers <- -Dw*Workers+Cw*(1-Br)*Energy
+          dReproductives <- Cr*Br*Energy-Dr*Reproductives
+          dEnergy <- Kw*Workers+Kr*Reproductives-Energy
+           
+          list(c(dWorkers, dReproductives, dEnergy))
+  })}
+
+SDE_bangstd <- function(t, state, parameters){
+  with(as.list(c(state, parameters)),{
+    
+          tt <- t/Ttol
+          Dw <- Dw4*(Dw1*(tt-1)^2 + Dw2*(1-4*(tt-.5)^2) + Dw3*tt^2)
+          if(tt < critval)   {Br <- 0}   else  {Br <- 1}
+          
+          dWorkers <- -Dw*Workers+(1-Br)*Cw*Energy
+          dReproductives <- Cr*Br*Energy-Dr*Reproductives
+          dEnergy <- Kw*Workers+Kr*Reproductives-Energy
+          
+          list(c(dWorkers, dReproductives, dEnergy))
+  })}
+@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,16 +214,11 @@ E &= E_c E_1  &&t = \frac{1}{D_w}\tau
 \label{eq: subs}
 \end{equation}
 
-\begin{Schunk}
-\begin{Sinput}
-> #Include non-dimensionalization definition
-\end{Sinput}
-\end{Schunk}
+<<echo=FALSE>>=
+#Include non-dimensionalization definition
+@
 
 Where $E_c$  is a critical energy level, which can represent a number of biological quantities. Others have discussed issues such as resource limitation on the queen \cite{mitesser2007optimal} or environmental factors such as energy availability or nest size. This particular scaling would certainly aid in modelling energy-limiting factors. Finally, $\frac{1}{Dw}$ scales time well under constant death rate conditions, but is nonlinear under realistic, variable death rate environmental conditions.
-
-\subsection*{Steady States}
-\addcontentsline{toc}{subsection}{Steady States}
 
 \section*{Standard System Dynamics}
 \addcontentsline{toc}{section}{Standard System Dynamics}
@@ -175,7 +232,41 @@ Where $E_c$  is a critical energy level, which can represent a number of biologi
 
 \begin{figure}[t]
 \centering
-\includegraphics{SweaveDoc-005}
+<<fig=TRUE,echo=FALSE,warning=FALSE,height=12,width=8>>=
+SDE_std_sol <- ode(y = state, times = times, func = SDE_std, parms = parameters)
+
+SDE_std_sol_df <- melt(as.data.frame(SDE_std_sol), id.vars = "time")
+
+SDE_std_param_df <- data.frame(time = rep(t,2),value = c(Dw,Br),
+                      type=c(rep("Mortality",length(t)),rep("Birth Rate",length(t))))
+
+plot1a <- ggplot(SDE_std_sol_df, mapping = aes(x=time,y=value, color=variable)) + geom_line() + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ylab("Value") + xlab(" ") + 
+  ggtitle("Standard System")+ labs(color = "") + theme(legend.position = "bottom")
+
+plot1b <- ggplot(SDE_std_param_df, mapping = aes(x=time,y=value, linetype=type)) + 
+  geom_line() + ylim(c(0,1)) + xlab("") + ylab("") + theme(legend.position = "bottom") +
+  ggtitle("Parameter Values") + labs(linetype = "")
+
+##################################
+
+SDE_bangstd_sol <- ode(y = state, times = times, func = SDE_bangstd, parms = parameters)
+
+SDE_bangstd_sol_df <- melt(as.data.frame(SDE_bangstd_sol), id.vars = "time")
+
+SDE_bangstd_param_df <- data.frame(time = rep(t,2),value = c(Dw,Br_bang),
+                      type=c(rep("Mortality",length(t)),rep("Birth Rate",length(t))))
+
+plot1a_bang <- ggplot(SDE_bangstd_sol_df, mapping = aes(x=time,y=value, color=variable)) + geom_line() + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ylab("Value") + xlab(" ") + 
+  ggtitle("Standard System")+ labs(color = "") + theme(legend.position = "bottom")
+
+plot1b_bang <- ggplot(SDE_bangstd_param_df, mapping = aes(x=time,y=value, linetype=type)) + 
+  geom_line() + ylim(c(0,1)) + xlab("") + ylab("") + theme(legend.position = "bottom") + 
+  ggtitle("Parameter Values") + labs(linetype = "")
+
+ggarrange(plot1a,plot1b,plot1a_bang,plot1b_bang,ncol=2,nrow=2,labels = c("A","B","C","D"))
+@
 \caption{Colony dynamics for the system of equations (a,c) with corresponding parameters on the right side graphs (b,d). Dashed lines represent forager death rate, while solid black line represents percent allocation of resources to reproductive rearing. Forager death rate used here is a monotonic linear combination of second degree polynomial functions. The parameters in (a,b) represent a bet-hedging approach and those in (c,d) represent the "bang-bang" strategy with transition point such that all energy can be converted to reproductives.}
 \label{fig: Continuous dynamics}
 \end{figure}
@@ -186,6 +277,34 @@ Regardless of the functions used to describe the system, one truth holds across 
 \addcontentsline{toc}{section}{Resource Availability, Forager Success}
 While it is beyond the scope of the current study to investigate the precise effects of changing resource availability since it is independent of reproductive allocation, I would like to point to its great effect on colony success or failure. Figure \ref{fig: Continuous dynamics 2} illustrates the magnitude of these effects on reproductive output. The parameters for figures \ref{fig: Continuous dynamics} and \ref{fig: Continuous dynamics 2} are identical, apart from the changed resource availability (energy foraged per worker per day). This quantity is plotted (b,d) to illustrate the effects. Notably, the worker population is not able to support even itself given the decreasing resource availability and thus wastes energy attempting to maintain its population before investing in reproductives. Therefore, the "bang-bang" strategy may not be the most effective given a decreasing resource availability. A critical point is reached after which workers no longer forage as much energy as it took to rear them, having an overall negative effect. In all other cases, I hold resource availability constant at the arbitrary value 2. Another important consideration is that resource availability determines the extremes of a season and thus may act as scale of time in our continuous model. 
 
+<<echo=FALSE>>=
+SDE_varK <- function(t, state, parameters){
+  with(as.list(c(state, parameters)),{
+          tt <- t/Ttol
+          Dw <- Dw4*(Dw1*(tt-1)^2 + Dw2*(1-4*(tt-.5)^2) + Dw3*tt^2)
+          Br <- Br4*(Br1*(tt-1)^2 + Br2*(1-4*(tt-.5)^2) + Br3*tt^2)
+          Kw <- Kf4*(Kf1*(tt-1)^2 + Kf2*(1-4*(tt-.5)^2) + Kf3*tt^2)
+          
+          dWorkers <- -Dw*Workers+Cw*(1-Br)*Energy
+          dReproductives <- Cr*Br*Energy-Dr*Reproductives
+          dEnergy <- Kw*Workers+Kr*Reproductives-Energy
+          list(c(dWorkers, dReproductives, dEnergy))
+  })}
+
+SDE_bangvarK <- function(t, state, parameters){
+  with(as.list(c(state, parameters)),{
+          tt <- t/Ttol
+          Dw <- Dw4*(Dw1*(tt-1)^2 + Dw2*(1-4*(tt-.5)^2) + Dw3*tt^2)
+          if(tt < critval)   {Br <- 0}   else  {Br <- 1}
+          
+          Kw <- Kf4*(Kf1*(tt-1)^2 + Kf2*(1-4*(tt-.5)^2) + Kf3*tt^2)
+          dWorkers <- -Dw*Workers+Cw*(1-Br)*Energy
+          dReproductives <- Cr*Br*Energy-Dr*Reproductives
+          dEnergy <- Kw*Workers+Kr*Reproductives-Energy
+          
+          list(c(dWorkers, dReproductives, dEnergy))
+  })}
+@
 
 %\begin{figure}[t!]
 %\centering
@@ -196,7 +315,46 @@ While it is beyond the scope of the current study to investigate the precise eff
 
 \begin{figure}[t!]
 \centering
-\includegraphics{SweaveDoc-007}
+<<label=VarKPlot,fig=TRUE,echo=FALSE,height=12,width=8>>=
+
+SDE_varK_sol <- ode(y = state, times = times, func = SDE_varK, parms = parameters)
+
+SDE_varK_sol_df <- melt(as.data.frame(SDE_varK_sol), id.vars = "time")
+
+SDE_varK_param_df <- data.frame(time = rep(t,3),value = c(Dw,Br,Kw),
+                 type=c(rep("Forager Death",length(t)),
+                        rep("%E to Reprods",length(t)),
+                        rep("Energy Saving",length(t))))
+
+plot2a <- ggplot(SDE_varK_sol_df, mapping = aes(x=time,y=value, color=variable)) + geom_line() + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ylab("Value") + xlab(" ") + 
+  ggtitle("Varying Resource Availability")+ labs(color = "") + theme(legend.position = "bottom")
+
+plot2b <- ggplot(SDE_varK_param_df, mapping = aes(x=time,y=value, linetype=type)) + 
+  geom_line() + xlab("") + ylab(" ") +  ylim(c(0,2)) + theme(legend.position = "bottom") +
+  ggtitle("Parameter Values")+ labs(linetype = "")
+
+###########################################
+
+SDE_bangvarK_sol <- ode(y = state, times = times, func = SDE_bangvarK, parms = parameters)
+
+SDE_bangvarK_sol_df <- melt(as.data.frame(SDE_bangvarK_sol), id.vars = "time")
+
+SDE_bangvarK_param_df <- data.frame(time = rep(t,3),value = c(Dw,Br,Kw),
+                 type=c(rep("Forager Death",length(t)),
+                        rep("%E to Reprods",length(t)),
+                        rep("Energy Saving",length(t))))
+
+plot2a_bang <- ggplot(SDE_bangvarK_sol_df, mapping = aes(x=time,y=value, color=variable)) + geom_line() + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ylab("Value") + xlab(" ") + 
+  ggtitle("Varying Resource Availability")+ labs(color = "") + theme(legend.position="bottom")
+
+plot2b_bang <- ggplot(SDE_bangvarK_param_df, mapping = aes(x=time,y=value, linetype=type)) + 
+  geom_line() + xlab("") + ylab(" ") + ylim(c(0,2)) + theme(legend.position="bottom") + 
+  ggtitle("Parameter Values")+ labs(linetype = "")
+
+ggarrange(plot2a,plot2b,plot2a_bang,plot2b_bang,ncol=2,nrow=2,labels = c("A","B","C","D"))
+@
 \caption{Illustration of the effects of a changing resource availability on within-season colony dynamics. These systems consist of the same strategies and forager death rates used in figure \ref{fig: Continuous dynamics}, the only difference being resource availability. Long-dashed lines are resource availability (energy per forager per day) with the systems in figure \ref{fig: Continuous dynamics} using a constant 2 energy per forager per day. Short-dashed lines represent forager death rate, solid black line represents percent allocation of resources to reproductive rearing. Forager death rate used here is monotonic, a combination of polynomial functions.}
 \label{fig: Continuous dynamics 2}
 \end{figure}
@@ -214,18 +372,196 @@ Most models in the literature make the assumption that all gathered energy is im
 \label{eq: energy system}
 \end{equation}
 
+<<echo=FALSE>>=
+SDE_varE <- function(t, state, parameters){
+  with(as.list(c(state, parameters)),{
+          tt <- t/Ttol
+          Dw <- Dw4*(Dw1*(tt-1)^2 + Dw2*(1-4*(tt-.5)^2) + Dw3*tt^2)
+          Br <- Br4*(Br1*(tt-1)^2 + Br2*(1-4*(tt-.5)^2) + Br3*tt^2)
+          Pe <- Pe4*(Pe1*(tt-1)^2 + Pe2*(1-4*(tt-.5)^2) + Pe3*tt^2)
+          
+          dWorkers <- -Dw*Workers+Cw*(1-Br)*Energy*(1-Pe)
+          dReproductives <- Cr*Br*Energy*(1-Pe)-Dr*Reproductives
+          dEnergy <- Kw*Workers+Kr*Reproductives-(1-Pe)*Energy
+          list(c(dWorkers, dReproductives, dEnergy))
+  })}
 
-%\begin{figure}[t!]
-%\centering
-%    \includegraphics[width=\textwidth]{alldraft.png}
-%    \caption{}
-%    \label{fig: all plots draft 1}
-%\end{figure}
+SDE_bangvarE <- function(t, state, parameters){
+  with(as.list(c(state, parameters)),{
+          tt <- t/Ttol
+          Dw <- Dw4*(Dw1*(tt-1)^2 + Dw2*(1-4*(tt-.5)^2) + Dw3*tt^2)
+          if(tt < critval)   {Br <- 0}   else  {Br <- 1}
+          Pe <- Pe4*(Pe1*(tt-1)^2 + Pe2*(1-4*(tt-.5)^2) + Pe3*tt^2)
+          
+          dWorkers <- -Dw*Workers+Cw*(1-Br)*Energy*(1-Pe)
+          dReproductives <- Cr*Br*Energy*(1-Pe)-Dr*Reproductives
+          dEnergy <- Kw*Workers+Kr*Reproductives-(1-Pe)*Energy
+          list(c(dWorkers, dReproductives, dEnergy))
+  })}
+@
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+While this model has been studied under varying assumptions, I have taken a generalized approach to illustrate the flexiblity of the model under a variety of environmental and colony conditions. I have shown that this model is a simple and flexible representation of the resource allocation problem faced by annual social inects each reproductive cycle. 
+The variation in environmental strategies can be accounted for by varying resource availability and forager death as time-dependent functions. The associated variation in colony reproductive strategy can be simply accounted for by varying resource allocation to workers or reproductives and resource provisioning as time-dependent functions. Lastly, in a real-world setting this model has great utility with environmental parameters that can be easily approximated. 
+
 
 \begin{figure}[t]
 \centering
-\includegraphics{SweaveDoc-temp}
-\caption{Result of energy provisioning strategy alongside standard (A) and bang-bang (C) strategies as described by the equations in equation \ref{eq: system}. Associated parameters are illustrated on the right (B,D). The provisioning stratedy presented here is monotonic, with high provisioning in the early season. }
+<<label=VarEPlot,echo=FALSE,fig=TRUE,height=12,width=8>>=
+SDE_varE_sol <- ode(y = state, times = times, func = SDE_varE, parms = parameters)
+
+SDE_varE_sol_df <- melt(as.data.frame(SDE_varE_sol), id.vars = "time")
+
+SDE_varE_param_df <- data.frame(time = rep(t,3),value = c(Dw,Br,Pe),
+                      type=c(rep("Mortality",length(t)),
+                             rep("%E to Reprods",length(t)),
+                             rep("Provisioning",length(t))))
+
+plot3a <- ggplot(SDE_varE_sol_df, mapping = aes(x=time,y=value, color=variable)) + geom_line() + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ylab("Value") + xlab(" ") + 
+  ggtitle("Varying Energy Provisioning") + labs(color = "") + theme(legend.position = "bottom")
+
+plot3b <- ggplot(SDE_varE_param_df, mapping = aes(x=time,y=value, linetype=type)) + 
+  geom_line() + xlab("") + ylab(" ") + ylim(c(0,1)) + theme(legend.position = "bottom") +
+  ggtitle("Parameter Values") + labs(linetype = "")
+
+################################
+
+SDE_bangvarE_sol <- ode(y = state, times = times, func = SDE_bangvarE, parms = parameters)
+
+SDE_bangvarE_sol_df <- melt(as.data.frame(SDE_bangvarE_sol), id.vars = "time")
+
+SDE_bangvarE_param_df <- data.frame(time = rep(t,3),value = c(Dw,Br_bang,Pe),
+                                    type=c(rep("Mortality",length(t)),
+                                           rep("%E to Reprods",length(t)),
+                                           rep("Provisioning",length(t))))
+
+plot3a_bang <- ggplot(SDE_bangvarE_sol_df, mapping = aes(x=time,y=value, color=variable)) + geom_line() + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ylab("Value") + xlab(" ") + 
+  ggtitle("Varying Energy Provisioning") + labs(color = "") + theme(legend.position = "bottom")
+
+plot3b_bang <- ggplot(SDE_bangvarE_param_df, mapping = aes(x=time,y=value, linetype=type)) + 
+  geom_line() + xlab("") + ylab(" ") + ylim(c(0,1)) + theme(legend.position = "bottom") +
+  ggtitle("Parameter Values") + labs(linetype = "")
+
+ggarrange(plot3a,plot3b,plot3a_bang,plot3b_bang,nrow = 2,ncol = 2,labels = c("A","B","C","D"))
+@
+\caption{Result of energy provisioning strategy alongside standard (A) and bang-bang (C) strategies as described by the equations in equation \ref{eq: system}. Associated parameters are illustrated on the right (B,D). The provisioning strategy presented here is monotonic, with high provisioning in the early season. }
+\end{figure}
+
+
+\begin{figure}[t]
+\centering
+<<label=VarPlots,echo=FALSE,fig=TRUE,height=12,width=8>>=
+n    <- 10
+vary <- "Kf2"
+range<- 0.1
+
+param.vals <- seq(from = parameters[vary]-range/2,to = parameters[vary]+range/2,length.out = n)
+SDE_sol_list <- list(); p <- list(); paramplot_df <- data.frame();
+temp <- ode(y = state, times = times, func = SDE_varK, parms = parameters)
+dfDEsol3 <- melt(as.data.frame(temp), id.vars = "time")[,c(1,2)]
+
+for (i in 1:n)
+{
+  parameters[vary] <- param.vals[i]
+  paramplot_df <- rbind(paramplot_df,data.frame(as.list(parameters)))
+  SDE_tempsol <- ode(y = state, times = times, func = SDE_varK, parms = parameters)
+  SDE_sol_list[[i]] <- melt(as.data.frame(SDE_tempsol), id.vars = "time")
+  dfDEsol3 <- cbind(dfDEsol3,SDE_sol_list[[i]][,3])
+}
+
+names(dfDEsol3) <- c("t","var",as.character(1:n))
+forplot <- melt(dfDEsol3,id.vars = c("t","var"))
+
+plot4a <- ggplot(forplot) + geom_line(aes(x=t,y=value,color=var,linetype = variable)) + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ggtitle("Varying Resource Availability \n Mid Season") + 
+  theme(legend.position = "none") + xlab("Seasonal Progress (%)") + ylab("Value")
+
+################################
+
+n    <- 10
+vary <- "Kf3"
+range<- 0.1
+
+param.vals <- seq(from = parameters[vary]-range/2,to = parameters[vary]+range/2,length.out = n)
+SDE_sol_list <- list(); p <- list(); paramplot_df <- data.frame();
+temp <- ode(y = state, times = times, func = SDE_varK, parms = parameters)
+dfDEsol3 <- melt(as.data.frame(temp), id.vars = "time")[,c(1,2)]
+
+for (i in 1:n)
+{
+  parameters[vary] <- param.vals[i]
+  paramplot_df <- rbind(paramplot_df,data.frame(as.list(parameters)))
+  SDE_tempsol <- ode(y = state, times = times, func = SDE_varK, parms = parameters)
+  SDE_sol_list[[i]] <- melt(as.data.frame(SDE_tempsol), id.vars = "time")
+  dfDEsol3 <- cbind(dfDEsol3,SDE_sol_list[[i]][,3])
+}
+
+names(dfDEsol3) <- c("t","var",as.character(1:n))
+forplot <- melt(dfDEsol3,id.vars = c("t","var"))
+
+plot4b <- ggplot(forplot) + geom_line(aes(x=t,y=value,color=var,linetype = variable)) + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ggtitle("Varying Resource Availability \n Late Season") + 
+  theme(legend.position = "none") + xlab("Seasonal Progress (%)") + ylab("Value")
+
+################################
+
+n    <- 10
+vary <- "Pe2"
+range<- 0.4
+
+param.vals <- seq(from = parameters[vary]-range/2,to = parameters[vary]+range/2,length.out = n)
+SDE_sol_list <- list(); p <- list();
+temp <- ode(y = state, times = times, func = SDE_varE, parms = parameters)
+dfDEsol3 <- melt(as.data.frame(temp), id.vars = "time")[,c(1,2)]
+
+for (i in 1:n)
+{
+  parameters[vary] <- param.vals[i]
+  SDE_tempsol <- ode(y = state, times = times, func = SDE_varE, parms = parameters)
+  SDE_sol_list[[i]] <- melt(as.data.frame(SDE_tempsol), id.vars = "time")
+  dfDEsol3 <- cbind(dfDEsol3,SDE_sol_list[[i]][,3])
+}
+
+names(dfDEsol3) <- c("t","var",as.character(1:n))
+forplot <- melt(dfDEsol3,id.vars = c("t","var"))
+
+plot4c <- ggplot(forplot) + geom_line(aes(x=t,y=value,color=var,linetype = variable)) + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ggtitle("Varying Energy Provisioning \n Mid Season") + 
+  theme(legend.position = "none") + xlab("Seasonal Progress (%)") + ylab("Value")
+
+################################
+
+n    <- 10
+vary <- "Pe3"
+range<- 0.4
+
+param.vals <- seq(from = parameters[vary]-range/2,to = parameters[vary]+range/2,length.out = n)
+SDE_sol_list <- list(); p <- list();
+temp <- ode(y = state, times = times, func = SDE_varE, parms = parameters)
+dfDEsol3 <- melt(as.data.frame(temp), id.vars = "time")[,c(1,2)]
+
+for (i in 1:n)
+{
+  parameters[vary] <- param.vals[i]
+  SDE_tempsol <- ode(y = state, times = times, func = SDE_varE, parms = parameters)
+  SDE_sol_list[[i]] <- melt(as.data.frame(SDE_tempsol), id.vars = "time")
+  dfDEsol3 <- cbind(dfDEsol3,SDE_sol_list[[i]][,3])
+}
+
+names(dfDEsol3) <- c("t","var",as.character(1:n))
+forplot <- melt(dfDEsol3,id.vars = c("t","var"))
+
+plot4d <- ggplot(forplot) + geom_line(aes(x=t,y=value,color=var,linetype = variable)) + 
+  scale_colour_manual(values=c("blue", "red", "green")) + ggtitle("Varying Energy Provisioning \n Late Season") + 
+  theme(legend.position = "none") + xlab("Seasonal Progress (%)") + ylab("Value")
+
+
+ggarrange(plot4a,plot4b,plot4c,plot4d,nrow = 2,ncol = 2,labels = c("A","B","C","D"))
+@
+\caption{Illustration of system dynamics under slight variation of parameters. (A,B) show effects of slight (10\%) variation of resource availability in middle and late season, respectively. Similarly, (C,D) shows effects of 20\% variation in energy preservation in middle and late season. Line types represent a single system for each plot, with parameter values increasing beginning at the solid line. Reproductives increase with increasing resource availability, while they decrease with increasing energy provisioning.}
 \end{figure}
 
 %\chapter*{Conclusion}

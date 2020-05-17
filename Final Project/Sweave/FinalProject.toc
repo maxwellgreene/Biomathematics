@@ -1,0 +1,10 @@
+\contentsline {chapter}{Abstract}{3}
+\contentsline {chapter}{Introduction}{4}
+\contentsline {chapter}{Results}{6}
+\contentsline {section}{Compartment Diagram}{7}
+\contentsline {section}{Analysis of Differential Equation System}{7}
+\contentsline {subsection}{Non-Dimensionalization}{8}
+\contentsline {section}{Standard System Dynamics}{9}
+\contentsline {section}{Resource Availability, Forager Success}{9}
+\contentsline {section}{Energy Provisioning}{9}
+\contentsline {chapter}{Conclusion}{13}
