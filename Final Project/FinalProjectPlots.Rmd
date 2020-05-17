@@ -68,7 +68,7 @@ SDE_varE <- function(t, state, parameters){
 ##########################
 ### Bang-Bang Strategy ###
 ##########################
-SDE_bang <- function(t, state, parameters){
+SDE_bangstd <- function(t, state, parameters){
   with(as.list(c(state, parameters)),{
           tt <- t/Ttol
           Dw <- Dw4*(Dw1*(tt-1)^2 + Dw2*(1-4*(tt-.5)^2) + Dw3*tt^2)
@@ -189,7 +189,6 @@ plot2b <- ggplot(data = plot2df, mapping = aes(x=time,y=value, linetype=type)) +
 
 #Varying Energy Preservation
 ```{r,fig.width=figW,fig.height=figH}
-
 SDE_varE_sol <- ode(y = state, times = times, func = SDE_varE, parms = parameters)
 
 SDE_varE_sol_df <- melt(as.data.frame(SDE_varE_sol), id.vars = "time")
@@ -215,7 +214,6 @@ plot3b <- ggplot(data = plot3df, mapping = aes(x=time,y=value, linetype=type)) +
   geom_line() + xlab("") + ylab(" ") + ylim(c(0,1)) + 
   ggtitle("Parameter Values")
 ```
-
 
 #Parameter Variation - Varying Resource Availability
 ```{r,fig.width=figW,fig.height=figH}
